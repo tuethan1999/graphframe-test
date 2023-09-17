@@ -19,9 +19,11 @@ def melt(
         df (DataFrame): The input DataFrame to be melted.
         id_vars (List[str]): The column names to use as identifier variables.
         value_vars (List[str]): The column names to unpivot into rows.
-        var_name (str, optional): The name of the variable column. Defaults to "variable".
+        var_name (str, optional): The name of the variable column. Defaults to
+            "variable".
         value_name (str, optional): The name of the value column. Defaults to "value".
-        dropna (bool, optional): Whether to drop rows with null values. Defaults to False.
+        dropna (bool, optional): Whether to drop rows with null values. Defaults
+            to False.
 
     Returns:
         DataFrame: The melted DataFrame.

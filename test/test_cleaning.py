@@ -52,9 +52,30 @@ def test_replace_null_string_values(spark_session: SparkSession):
     assert cleaned_df.collect() == expected_df.collect()
 
 
-def test_cleaning_transformer2(
+def test_cleaning_transformer(
     spark_session: SparkSession, uncleaned_data: DataFrame, cleaned_data: DataFrame
 ):
-    cleaner = DataCleaner(["anid", "AdId", "SapphireId", "userIDFA"])
+    cleaner = DataCleaner(columns_to_clean=["anid", "AdId", "SapphireId", "userIDFA"])
     cleaned_df = cleaner.transform(uncleaned_data)
     assert cleaned_df.collect() == cleaned_data.collect()
+
+def test_cleaning_transformer_set_parameter_in_transform(
+    spark_session: SparkSession, uncleaned_data: DataFrame, cleaned_data: DataFrame
+):
+    cleaner = DataCleaner()
+    cleaned_df = cleaner.transform(
+        uncleaned_data,
+        {
+            cleaner.columns_to_clean: ["anid", "AdId", "SapphireId", "userIDFA"],
+        },
+    )
+    assert cleaned_df.collect() == cleaned_data.collect()
+
+def test_cleaning_transformer_set_parameter(
+    spark_session: SparkSession, uncleaned_data: DataFrame
+):
+    cleaner = DataCleaner()
+    try:
+        cleaner.transform(uncleaned_data)
+    except ValueError as e:
+        assert str(e) == "columns_to_clean cannot be empty"

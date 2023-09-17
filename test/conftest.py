@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 @pytest.fixture(scope="session")
 def spark_session():
     spark = (
-        SparkSession.builder.master("local[2]")
+        SparkSession.builder.master("local[1]")
         .appName("local-tests")
         .config("spark.jars.packages", "graphframes:graphframes:0.8.2-spark3.2-s_2.12")
         .config(
