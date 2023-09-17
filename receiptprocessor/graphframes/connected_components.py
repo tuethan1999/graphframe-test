@@ -55,7 +55,7 @@ class ConnectedComponents(Transformer):
             self,
             "save_graphframe_path",
             "path to save vertice and edge dfs to",
-            typeConverter=TypeConverters.toString,
+            typeConverter=TypeConverters.identity,
         )
         self.set(self.edge_columns, edge_columns if edge_columns is not None else [])
         self.set(
