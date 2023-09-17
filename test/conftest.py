@@ -8,7 +8,19 @@ def spark_session():
         SparkSession.builder.master("local[2]")
         .appName("local-tests")
         .config("spark.jars.packages", "graphframes:graphframes:0.8.2-spark3.2-s_2.12")
-        .config("spark.sql.broadcastTimeout", 2000)
+        .config(
+            "spark.sql.broadcastTimeout", 2000
+        )  # test runs faster with these configs
+        .config("spark.sql.shuffle.partitions", "1")
+        .config("spark.ui.showConsoleProgress", "false")
+        .config("spark.ui.enabled", "false")
+        .config("spark.ui.dagGraph.retainedRootRDDs", "1")
+        .config("spark.ui.retainedJobs", "1")
+        .config("spark.ui.retainedStages", "1")
+        .config("spark.ui.retainedTasks", "1")
+        .config("spark.sql.ui.retainedExecutions", "1")
+        .config("spark.worker.ui.retainedExecutors", "1")
+        .config("spark.worker.ui.retainedDrivers", "1")
         .getOrCreate()
     )
     spark.sparkContext.setCheckpointDir(".spark_checkpoint")
@@ -71,5 +83,5 @@ def component_vertice_mapping(spark_session):
         ("anid4", "anid", 8589934592),
         ("anid5", "anid", 8589934592),
     ]
-    df = spark_session.createDataFrame(data)
+    df = spark_session.createDataFrame(data, ["id", "Type", "component"])
     yield df
