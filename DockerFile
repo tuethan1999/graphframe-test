@@ -1,4 +1,3 @@
 FROM jupyter/pyspark-notebook:spark-3.2.1
 ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/build:$SPARK_HOME/python/lib/py4j-0.10.9.3-src.zip:$PYTHONPATH
-RUN conda install -c anaconda pytest
-RUN pip install "git+https://github.com/tuethan1999/graphframes.git#egg=graphframes&subdirectory=python"
+#RUN pip install -e .[dev,test]
