@@ -1,6 +1,7 @@
-from receiptprocessor.preprocessor.cleaning import *
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.types import StringType, StructField, StructType
+
+from receiptprocessor.preprocessor.cleaning import *
 
 
 def test_replace_zeros(spark_session: SparkSession):
@@ -46,7 +47,10 @@ def test_replace_null_string_values(spark_session: SparkSession):
     cleaned_df = replace_null_string_values(df, ["anid", "AdId"])
     assert cleaned_df.collect() == expected_df.collect()
 
-def test_cleaning_transformer2(spark_session: SparkSession, uncleaned_data: DataFrame, cleaned_data: DataFrame):
+
+def test_cleaning_transformer2(
+    spark_session: SparkSession, uncleaned_data: DataFrame, cleaned_data: DataFrame
+):
     cleaner = DataCleaner(["anid", "AdId", "SapphireId", "userIDFA"])
     cleaned_df = cleaner.transform(uncleaned_data)
     assert cleaned_df.collect() == cleaned_data.collect()

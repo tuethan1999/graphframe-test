@@ -1,14 +1,16 @@
-from pyspark.sql.functions import array, col, explode, lit, struct
-from pyspark.sql import DataFrame
 from typing import List
 
+from pyspark.sql import DataFrame
+from pyspark.sql.functions import array, col, explode, lit, struct
+
+
 def melt(
-    df: DataFrame, 
-    id_vars: List[str], 
-    value_vars: List[str], 
-    var_name: str = "variable", 
-    value_name: str = "value", 
-    dropna: bool = False
+    df: DataFrame,
+    id_vars: List[str],
+    value_vars: List[str],
+    var_name: str = "variable",
+    value_name: str = "value",
+    dropna: bool = False,
 ) -> DataFrame:
     """
     Transform a DataFrame from wide to long format by melting columns into rows.

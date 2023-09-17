@@ -1,6 +1,7 @@
 import pytest
 from pyspark.sql import SparkSession
 
+
 @pytest.fixture(scope="session")
 def spark_session():
     spark = (
@@ -53,6 +54,7 @@ def cleaned_data(spark_session):
     )
     yield df
 
+
 @pytest.fixture()
 def component_vertice_mapping(spark_session):
     data = [
@@ -67,7 +69,7 @@ def component_vertice_mapping(spark_session):
         ("SapphireId3", "SapphireId", 8589934592),
         ("anid6", "anid", 111669149696),
         ("anid4", "anid", 8589934592),
-        ("anid5", "anid", 8589934592)
+        ("anid5", "anid", 8589934592),
     ]
     df = spark_session.createDataFrame(data)
     yield df

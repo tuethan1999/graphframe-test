@@ -1,14 +1,16 @@
-from pyspark.sql.functions import col
-from pyspark.sql.types import StringType
-from pyspark.sql.functions import udf
-from pyspark.sql import DataFrame
-from graphframes import GraphFrame
-from receiptprocessor.transformations import melt
-from pyspark.ml.param.shared import Param, Params, TypeConverters
-from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
-from pyspark import keyword_only
+import os
+from typing import Optional
 
+from graphframes import GraphFrame
+from pyspark import keyword_only
 from pyspark.ml import Transformer
+from pyspark.ml.param.shared import Param, TypeConverters
+from pyspark.sql import DataFrame
+from pyspark.sql.functions import col
+
+from receiptprocessor.transformations import melt
+from receiptprocessor.utils.disk import write_parquet_safe
+
 
 def create_graph_frame(
     df: DataFrame, edge_cols, vertice_cols, src_col="src", dst_col="dst"
@@ -26,34 +28,62 @@ def create_graph_frame(
     vertices = melted_df.select(col("value").alias("id"), "Type").distinct()
     g = GraphFrame(vertices, edges)
     return g
-    
+
+
 class ConnectedComponents(Transformer):
     @keyword_only
-    def __init__(self, EdgeColumns=None, VerticeColumns=None):
+    def __init__(
+        self,
+        edge_columns: Optional[list[str]] = None,
+        vertice_columns: Optional[list[str]] = None,
+        save_graphframe_path: Optional[str] = None,
+    ):
         super(ConnectedComponents, self).__init__()
-        self.EdgeColumns = Param(self, "EdgeColumns", "")
-        self.VerticeColumns = Param(self, "VerticeColumns", "")
-        self._setDefault(EdgeColumns=[], VerticeColumns=[])
-        kwargs = self._input_kwargs
-        self.setParams(**kwargs)
+        self.edge_columns = Param(
+            self,
+            "edge_columns",
+            "list of columns that represent edges",
+            typeConverter=TypeConverters.toListString,
+        )
+        self.vertice_columns = Param(
+            self,
+            "vertice_columns",
+            "list of columns that represent vertices",
+            typeConverter=TypeConverters.toListString,
+        )
+        self.save_graphframe_path = Param(
+            self,
+            "save_graphframe_path",
+            "path to save vertice and edge dfs to",
+            typeConverter=TypeConverters.toString,
+        )
+        self.set(self.edge_columns, edge_columns if edge_columns is not None else [])
+        self.set(
+            self.vertice_columns, vertice_columns if vertice_columns is not None else []
+        )
+        self.set(self.save_graphframe_path, save_graphframe_path)
 
     def _transform(self, df: DataFrame) -> DataFrame:
-        g = create_graph_frame(df, self.getEdgeColumns(), self.getVerticeColumns())
+        self._verify_params()
+        g = create_graph_frame(
+            df, self.getOrDefault("edge_columns"), self.getOrDefault("vertice_columns")
+        )
+        self._save_graphframe(g)
         cc = g.connectedComponents()
         return cc
-    
-    def setParams(self, EdgeColumns=None, VerticeColumns=None):
-        kwargs = self._input_kwargs
-        return self._set(**kwargs)
-    
-    def getEdgeColumns(self):
-        return self.getOrDefault(self.EdgeColumns)
-    
-    def setEdgeColumns(self, value):
-        return self._set(EdgeColumns=value)
-    
-    def getVerticeColumns(self):
-        return self.getOrDefault(self.VerticeColumns)
-    
-    def setVerticeColumns(self, value):
-        return self._set(VerticeColumns=value)
+
+    def _verify_params(self):
+        edge_columns = self.getOrDefault("edge_columns")
+        vertice_columns = self.getOrDefault("vertice_columns")
+        if edge_columns is None or len(edge_columns) == 0:
+            raise ValueError("EdgeColumns cannot be empty")
+        if vertice_columns is None or len(vertice_columns) == 0:
+            raise ValueError("VerticeColumns cannot be empty")
+
+    def _save_graphframe(self, g: GraphFrame):
+        save_graphframe_path = self.getOrDefault("save_graphframe_path")
+        if save_graphframe_path is not None:
+            write_parquet_safe(
+                g.vertices, os.path.join(save_graphframe_path, "vertices")
+            )
+            write_parquet_safe(g.edges, os.path.join(save_graphframe_path, "edges"))
