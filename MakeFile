@@ -1,0 +1,15 @@
+.PHONY: clean
+clean:
+	find . -name '*.pyo' -delete
+	find . -name '*.pyc' -delete
+	find . -name __pycache__ -delete
+	find . -name '*~' -delete
+	find . -name '.coverage.*' -delete
+
+.PHONY: create-zip
+create-zip:
+	pip install --no-dependencies -t  dependencies .
+	cd dependencies && zip -r ../dependencies.zip .
+	cd ..
+	rm -rf dependencies
+	rm -rf build

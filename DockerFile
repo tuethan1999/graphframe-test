@@ -1,3 +1,10 @@
 FROM jupyter/pyspark-notebook:spark-3.2.1
 ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/build:$SPARK_HOME/python/lib/py4j-0.10.9.3-src.zip:$PYTHONPATH
+RUN conda create -n py38 python=3.8
+RUN conda init bash
+RUN echo "source /opt/conda/bin/activate py38" > ~/.bashrc
+
+USER root
+RUN  apt-get update --yes && apt-get -y install zip
+USER ${NB_UID}
 #RUN pip install -e .[dev,test]

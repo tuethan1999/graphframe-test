@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 
 from graphframes import GraphFrame
 from pyspark import keyword_only
@@ -34,8 +34,8 @@ class ConnectedComponents(Transformer):
     @keyword_only
     def __init__(
         self,
-        edge_columns: Optional[list[str]] = None,
-        vertice_columns: Optional[list[str]] = None,
+        edge_columns: Optional[List[str]] = None,
+        vertice_columns: Optional[List[str]] = None,
         save_graphframe_path: Optional[str] = None,
     ):
         super(ConnectedComponents, self).__init__()

@@ -6,6 +6,7 @@ readme = "README.md" # Optional
 requires-python = ">=3.8"
 dependencies = [
     "graphframes@git+https://github.com/tuethan1999/graphframes.git#egg=graphframes&subdirectory=python",
+    "numpy",
 ]
 
 [build-system]

@@ -5,3 +5,5 @@
 *.egg-info
 *.coverage*
 .ruff_cache
+build
+dependencies

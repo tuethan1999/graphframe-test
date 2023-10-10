@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pyspark import keyword_only
 from pyspark.ml import Transformer
@@ -7,7 +7,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, lower, regexp_replace, when
 
 
-def replace_zeros(df: DataFrame, column_names: list) -> DataFrame:
+def replace_zeros(df: DataFrame, column_names: List) -> DataFrame:
     non_alphanumeric_pattern = "[^a-zA-Z0-9]"
     for column_name in column_names:
         df = df.withColumn(
@@ -23,7 +23,7 @@ def replace_zeros(df: DataFrame, column_names: list) -> DataFrame:
     return df
 
 
-def replace_null_string_values(df: DataFrame, column_names: list) -> DataFrame:
+def replace_null_string_values(df: DataFrame, column_names: List) -> DataFrame:
     null_string_list = [
         "none",
         "null",
@@ -46,7 +46,7 @@ def replace_null_string_values(df: DataFrame, column_names: list) -> DataFrame:
 
 class DataCleaner(Transformer):
     @keyword_only
-    def __init__(self, columns_to_clean: Optional[list[str]] = None):
+    def __init__(self, columns_to_clean: Optional[List[str]] = None):
         super(DataCleaner, self).__init__()
         self.columns_to_clean = Param(
             self,
@@ -54,8 +54,10 @@ class DataCleaner(Transformer):
             "list of columns to clean",
             typeConverter=TypeConverters.toListString,
         )
-        self.set(self.columns_to_clean,
-                 columns_to_clean if columns_to_clean is not None else [])
+        self.set(
+            self.columns_to_clean,
+            columns_to_clean if columns_to_clean is not None else [],
+        )
 
     def _transform(self, df: DataFrame) -> DataFrame:
         self._verify_params()
